@@ -1,4 +1,5 @@
 ﻿using Kit.DotNet.Core.Utils.Constants;
+using Kit.DotNet.Core.Utils.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -16,7 +17,7 @@ namespace Kit.DotNet.Core.Utils.Extensions
         /// <param name="url">url of petition</param>
         /// <param name="token">access token</param>
         /// <returns>a object TEntity</returns>
-        public static async Task<TEntity> GetAsync<TEntity>(this HttpClient client, string url, string token = null) where TEntity : class
+        public static async Task<Response<TEntity>> GetAsync<TEntity>(this HttpClient client, string url, string token = null) where TEntity : class
         {
             ComposeToken(client, token);
 
@@ -24,7 +25,20 @@ namespace Kit.DotNet.Core.Utils.Extensions
 
             string content = await response.Content.ReadAsStringAsync();
 
-            return JsonExtension.DeSerializeObject<TEntity>(content);
+            return new Response<TEntity>
+            {
+                HttpResponseMessage = response,
+                Entity = JsonExtension.DeSerializeObject<TEntity>(content)
+            };
+        }
+
+
+        public static async Task<Response<TEntity>> PostAsync<TEntity>(this HttpClient client, RequestParameters parameters) where TEntity : class
+        {
+            ComposeToken(client, parameters.Token);
+
+            //TODO: To implement
+            throw new NotImplementedException();
         }
 
 
