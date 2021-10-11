@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -23,7 +22,7 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
             HttpClient consulClient = _consulClientFactory.CreateClient();
             consulClient.BaseAddress = new Uri(urlConsul);
 
-            Response<List<string>> result = await consulClient.GetAsync<List<string>>("/v1/kv/?keys");
+            Response<List<string>> result = await consulClient.GetAsync<List<string>>(new RequestParameters { Url = "/v1/kv/?keys"});
 
             if (result.HttpResponseMessage.StatusCode != HttpStatusCode.OK)
                 throw new InvalidOperationException("no connection could be established with consul");
