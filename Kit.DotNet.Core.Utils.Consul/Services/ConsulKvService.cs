@@ -43,15 +43,7 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
 
                 if (consulConfigurationFile.ReloadConfigurationAllStartup || (!consulConfigurationFile.ReloadConfigurationAllStartup && !isFileExists))
                 {
-                    string contentFile = File.ReadAllText($"{appPath}/{item}");
-
-                    Response<string> response = await CreateConsulClient(consulConfigurationFile.Address + URL_KV_CONSUL + item).PutAsync<string>(
-                    new RequestParameters
-                    {
-                        HttpContent = contentFile.ToStringContent()
-                    });
-
-                    ValidateResponse(response);
+                    Response<string> response =  await UploadFile(consulConfigurationFile.Address, item, File.ReadAllText($"{appPath}/{item}"));
 
                     bool result = Convert.ToBoolean(response.Entity);
 
@@ -62,6 +54,7 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
 
             return isUploadAllFiles;
         }
+
 
         public async Task<List<string>> GetListKv(string urlConsul)
         {
@@ -74,6 +67,19 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
 
 
         #region Private methods
+
+        private async Task<Response<string>> UploadFile(string urlConsul, string fileName, string contentFile)
+        {
+            Response<string> response = await CreateConsulClient(urlConsul + URL_KV_CONSUL + fileName).PutAsync<string>(
+                    new RequestParameters
+                    {
+                        HttpContent = contentFile.ToStringContent()
+                    });
+
+            ValidateResponse(response);
+
+            return response;
+        }
 
         private List<string> ProccessFileNames(ConsulConfigurationFile consulConfigurationFile, string environment)
         {
