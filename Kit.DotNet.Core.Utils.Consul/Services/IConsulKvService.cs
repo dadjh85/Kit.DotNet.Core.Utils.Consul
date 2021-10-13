@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Kit.DotNet.Core.Utils.Consul.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Kit.DotNet.Core.Utils.Consul.Services
@@ -7,6 +8,6 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
     {
         Task<List<string>> GetListKv(string urlConsul);
 
-        Task<bool> AddFileKv(string urlConsul, string environment = "Development", string urlFile = "appsettings.json", bool uploadEnvironmentFile = true);
+        Task<bool> AddFileKv(ConsulConfigurationFile consulConfigurationFile, string environment);
     }
 }

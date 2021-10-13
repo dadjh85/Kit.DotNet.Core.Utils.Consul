@@ -8,6 +8,7 @@ using System.Net;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Kit.DotNet.Core.Utils.Consul.Models;
 
 namespace Kit.DotNet.Core.Utils.Consul.Services
 {
@@ -26,30 +27,37 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
             _consulClientFactory = consulClientFactory ?? throw new ArgumentNullException(nameof(consulClientFactory));
         }
 
-        public async Task<bool> AddFileKv(string urlConsul, string environment = "Development", string urlFile = "appsettings.json", bool uploadEnvironmentFile = true)
+        public async Task<bool> AddFileKv(ConsulConfigurationFile consulConfigurationFile, string environment)
         {
             string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            List<string> fileNames = ProccessFileNames(urlFile, environment, uploadEnvironmentFile);
+            List<string> fileNames = ProccessFileNames(consulConfigurationFile, environment);
 
             bool isUploadAllFiles = true;
 
-            foreach(var item in fileNames)
+            List<string> urlFilesInConsul = await GetListKv(consulConfigurationFile.Address);
+
+            foreach (var item in fileNames)
             {
-                string contentFile = File.ReadAllText($"{appPath}/{item}");
+                bool isFileExists = urlFilesInConsul.Any(x => x.Trim() == item.Trim());
 
-                Response<string> response = await CreateConsulClient(urlConsul + URL_KV_CONSUL + item).PutAsync<string>(
-                new RequestParameters 
+                if (consulConfigurationFile.ReloadConfigurationAllStartup || (!consulConfigurationFile.ReloadConfigurationAllStartup && !isFileExists))
                 {
-                    HttpContent = contentFile.ToStringContent() 
-                });
+                    string contentFile = File.ReadAllText($"{appPath}/{item}");
 
-                ValidateResponse(response);
+                    Response<string> response = await CreateConsulClient(consulConfigurationFile.Address + URL_KV_CONSUL + item).PutAsync<string>(
+                    new RequestParameters
+                    {
+                        HttpContent = contentFile.ToStringContent()
+                    });
 
-                bool result = Convert.ToBoolean(response.Entity);
+                    ValidateResponse(response);
 
-                if (!result)
-                    isUploadAllFiles = result;
+                    bool result = Convert.ToBoolean(response.Entity);
+
+                    if (!result)
+                        isUploadAllFiles = result;
+                }
             }
 
             return isUploadAllFiles;
@@ -67,7 +75,25 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
 
         #region Private methods
 
-        private List<string> ProccessFileNames(string urlFile, string environment, bool uploadEnvironmentFile)
+        private List<string> ProccessFileNames(ConsulConfigurationFile consulConfigurationFile, string environment)
+        {
+            if(consulConfigurationFile.UrlFiles == null)
+            {
+                return GetFileName(consulConfigurationFile.UploadEnvironmentFile, consulConfigurationFile.UrlFile, environment);
+            }
+            else
+            {
+                List<string> files = new List<string>();
+                foreach(var item in consulConfigurationFile.UrlFiles)
+                {
+                    files.AddRange(GetFileName(consulConfigurationFile.UploadEnvironmentFile, item, environment));
+                }
+
+                return files;
+            }
+        }
+
+        private List<string> GetFileName(bool uploadEnvironmentFile, string urlFile, string environment)
         {
             if (uploadEnvironmentFile)
             {
