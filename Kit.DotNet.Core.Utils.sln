@@ -5,7 +5,11 @@ VisualStudioVersion = 16.0.31613.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kit.DotNet.Core.Utils.Consul", "Kit.DotNet.Core.Utils.Consul\Kit.DotNet.Core.Utils.Consul.csproj", "{9DE98CA3-6DFD-4E4A-B454-F59674125DC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kit.DotNet.Core.Utils", "Kit.DotNet.Core.Utils\Kit.DotNet.Core.Utils.csproj", "{EE27EE88-C66C-44CF-862B-9E3EC24A4C90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kit.DotNet.Core.Utils", "Kit.DotNet.Core.Utils\Kit.DotNet.Core.Utils.csproj", "{EE27EE88-C66C-44CF-862B-9E3EC24A4C90}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D1E2AAE2-226D-4D96-8F28-D505BD110204}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E9501890-68B8-4A69-85DA-BC36BC361DF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +28,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9DE98CA3-6DFD-4E4A-B454-F59674125DC3} = {D1E2AAE2-226D-4D96-8F28-D505BD110204}
+		{EE27EE88-C66C-44CF-862B-9E3EC24A4C90} = {D1E2AAE2-226D-4D96-8F28-D505BD110204}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EEE4DD8-3502-42DA-9986-47F755763C14}
