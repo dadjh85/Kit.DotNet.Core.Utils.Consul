@@ -139,8 +139,8 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
         /// method for get the name of the files to process
         /// </summary>
         /// <param name="uploadEnvironmentFile">a bool with the option to obtain the environment file</param>
-        /// <param name="urlFile"></param>
-        /// <param name="environment"></param>
+        /// <param name="urlFile">the url of file to process in consul server</param>
+        /// <param name="environment">the .NET Core application environment</param>
         /// <returns>a list of string with the names of files to process</returns>
         private List<string> GetFileName(bool uploadEnvironmentFile, string urlFile, string environment)
         {
