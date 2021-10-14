@@ -5,10 +5,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Kit.DotNet.Core.Utils.Consul
 {
+    /// <summary>
+    /// class for configurate the upload of the files in consul server 
+    /// </summary>
     public static class ConsulKvFileConfigure
     {
+        /// <summary>
+        /// constant with the library configuration in the appsetting.json of the user's net core application
+        /// </summary>
         private const string CONSUL_CONFIG_SECTION = "ConsulConfig";
 
+        /// <summary>
+        /// configuration method for registering the process in the user's .NET Core application
+        /// </summary>
+        /// <param name="services">a object IServiceCollection for register the configuration in the method of ConfigureService of net core aplication</param>
+        /// <param name="configuration">a object IConfiguration whith the user's options</param>
+        /// <param name="urlFile">the url of file to upload in consul</param>
+        /// <returns>a object IServiceCollection</returns>
         public static IServiceCollection AddFilesKvConsul(this IServiceCollection services, IConfiguration configuration, string urlFile = null)
         {
             services.AddSingleton(LoadConsulKvOptions(configuration, urlFile));
@@ -19,6 +32,12 @@ namespace Kit.DotNet.Core.Utils.Consul
             return services;
         }
 
+        /// <summary>
+        /// method for process the user configuration
+        /// </summary>
+        /// <param name="configuration">a object IConfiguration whith the user's options</param>
+        /// <param name="urlFile">the url of file to upload in consul</param>
+        /// <returns>a object ConsulConfigurationFile with the user options</returns>
         private static ConsulConfigurationFile LoadConsulKvOptions(IConfiguration configuration, string urlFile = null)
         {
             ConsulKvFileUserOptions consulKvFileUserOptions = new ConsulKvFileUserOptions();

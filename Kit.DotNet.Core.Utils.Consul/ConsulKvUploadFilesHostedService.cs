@@ -9,10 +9,24 @@ using Kit.DotNet.Core.Utils.Consul.Models;
 
 namespace Kit.DotNet.Core.Utils.Consul
 {
+    /// <summary>
+    /// process for proccess the files in consul server
+    /// </summary>
     public class ConsulKvUploadFilesHostedService : IHostedService
     {
+        /// <summary>
+        /// a object ILogger for print the trace of the execution
+        /// </summary>
         private readonly ILogger<ConsulKvUploadFilesHostedService> _logger;
+
+        /// <summary>
+        /// the user's options
+        /// </summary>
         private readonly ConsulConfigurationFile _consulConfiguration;
+
+        /// <summary>
+        /// an IServiceScopeFactory object to obtain the IConsulKvService interface by dependency injection and execute the process
+        /// </summary>
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public ConsulKvUploadFilesHostedService(ILogger<ConsulKvUploadFilesHostedService> logger,  IServiceScopeFactory serviceScopeFactory, ConsulConfigurationFile consulConfiguration)
@@ -22,6 +36,10 @@ namespace Kit.DotNet.Core.Utils.Consul
             _consulConfiguration = consulConfiguration ?? throw new ArgumentNullException(nameof(consulConfiguration));
         }
 
+        /// <summary>
+        /// method of starting the process 
+        /// </summary>
+        /// <param name="cancellationToken">a object CancellationToken</param>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             using (var scope = _serviceScopeFactory.CreateScope())
@@ -43,6 +61,10 @@ namespace Kit.DotNet.Core.Utils.Consul
             }
         }
 
+        /// <summary>
+        /// method that captures the application stop 
+        /// </summary>
+        /// <param name="cancellationToken">a object CancellationToken</param>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("the ConsulKvUploadFilesHostedService has been terminated.");

@@ -2,6 +2,9 @@
 
 namespace Kit.DotNet.Core.Utils.Consul.Models
 {
+    /// <summary>
+    /// class with the configuration options that the user wants to set in his project.
+    /// </summary>
     public class ConsulKvFileUserOptions
     {
         public string Address { get; set; }
