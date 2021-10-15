@@ -9,6 +9,7 @@ namespace Kit.DotNet.Core.Utils.Consul.Models
     {
         public string Address { get; set; }
         public string UrlFile { get; set; } = "appsettings.json";
+        public string RelativeRouteFileConsul { get; set; }
         public List<string> UrlFiles { get; set; }
         public bool UploadEnvironmentFile { get; set; } = true;
         public bool ReloadConfigurationAllStartup { get; set; } = true;

@@ -58,11 +58,11 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
 
             foreach (var item in fileNames)
             {
-                bool isFileExists = urlFilesInConsul.Any(x => x.Trim() == item.Trim());
+                bool isFileExists = urlFilesInConsul.Any(x => x.Trim() == consulConfigurationFile.RelativeRouteFileConsul + item.Trim());
 
                 if (consulConfigurationFile.ReloadConfigurationAllStartup || (!consulConfigurationFile.ReloadConfigurationAllStartup && !isFileExists))
                 {
-                    Response<string> response =  await UploadFile(consulConfigurationFile.Address, item, File.ReadAllText($"{appPath}/{item}"));
+                    Response<string> response =  await UploadFile(consulConfigurationFile, item, File.ReadAllText($"{appPath}/{item}"));
 
                     bool result = Convert.ToBoolean(response.Entity);
 
@@ -94,13 +94,15 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
         /// <summary>
         /// method that makes a put call to the consul api, which allows a file to be uploaded to the server
         /// </summary>
-        /// <param name="urlConsul">the url of the consul server</param>
+        /// <param name="consulConfigurationFile">object with the configuration options for file uploading</param>
         /// <param name="fileName">the name of file</param>
         /// <param name="contentFile">the content of file</param>
         /// <returns>the response http and a string with the result of execution</returns>
-        private async Task<Response<string>> UploadFile(string urlConsul, string fileName, string contentFile)
+        private async Task<Response<string>> UploadFile(ConsulConfigurationFile consulConfigurationFile, string fileName, string contentFile)
         {
-            Response<string> response = await CreateConsulClient(urlConsul + URL_KV_CONSUL + fileName).PutAsync<string>(
+            string urlConsul = $"{consulConfigurationFile.Address}{URL_KV_CONSUL}{consulConfigurationFile.RelativeRouteFileConsul}{fileName}";
+
+            Response<string> response = await CreateConsulClient(urlConsul).PutAsync<string>(
                     new RequestParameters
                     {
                         HttpContent = contentFile.ToStringContent()
