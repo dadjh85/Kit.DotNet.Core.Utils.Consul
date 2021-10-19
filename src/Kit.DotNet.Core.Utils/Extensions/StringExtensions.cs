@@ -25,6 +25,14 @@ namespace Kit.DotNet.Core.Utils.Extensions
         #region "Static Methods"
 
         /// <summary>
+        /// Convert a byte[] to string
+        /// </summary>
+        /// <param name="bytes">a object type byte[]</param>
+        /// <returns>a string with the result</returns>
+        public static string BytesToString(this byte[] bytes)
+            => Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+
+        /// <summary>
         ///     Sets the first letter of the string to uppercase.
         /// </summary>
         /// <param name="s">String type object</param>

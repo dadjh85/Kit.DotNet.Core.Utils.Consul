@@ -54,7 +54,9 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
 
             bool isUploadAllFiles = true;
 
-            List<string> urlFilesInConsul = await GetListKv(consulConfigurationFile.Address);
+            HttpClient client = CreateConsulClient(consulConfigurationFile.Address);
+
+            List<string> urlFilesInConsul = await GetListKv(client);
 
             foreach (var item in fileNames)
             {
@@ -62,7 +64,7 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
 
                 if (consulConfigurationFile.ReloadConfigurationAllStartup || (!consulConfigurationFile.ReloadConfigurationAllStartup && !isFileExists))
                 {
-                    Response<string> response =  await UploadFile(consulConfigurationFile, item, File.ReadAllText($"{appPath}/{item}"));
+                    Response<string> response =  await UploadFile(client, consulConfigurationFile, item, File.ReadAllText($"{appPath}/{item}"));
 
                     bool result = Convert.ToBoolean(response.Entity);
 
@@ -77,11 +79,11 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
         /// <summary>
         /// gets the list of file names uploaded to the consul server.
         /// </summary>
-        /// <param name="urlConsul">the url of the consul server</param>
+        /// <param name="client">the client for call API-REST</param>
         /// <returns>a list of strings with the name of all files in consul</returns>
-        public async Task<List<string>> GetListKv(string urlConsul)
+        public async Task<List<string>> GetListKv(HttpClient client)
         {
-            Response<List<string>> result = await CreateConsulClient(urlConsul).GetAsync<List<string>>(new RequestParameters { Url = $"{URL_KV_CONSUL}?keys"});
+            Response<List<string>> result = await client.GetAsync<List<string>>(new RequestParameters { Url = $"{URL_KV_CONSUL}?keys"});
 
             ValidateResponse(result);
 
@@ -94,17 +96,17 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
         /// <summary>
         /// method that makes a put call to the consul api, which allows a file to be uploaded to the server
         /// </summary>
+        /// <param name="client">the client for call API-REST</param>
         /// <param name="consulConfigurationFile">object with the configuration options for file uploading</param>
         /// <param name="fileName">the name of file</param>
         /// <param name="contentFile">the content of file</param>
         /// <returns>the response http and a string with the result of execution</returns>
-        private async Task<Response<string>> UploadFile(ConsulConfigurationFile consulConfigurationFile, string fileName, string contentFile)
+        private async Task<Response<string>> UploadFile(HttpClient client, ConsulConfigurationFile consulConfigurationFile, string fileName, string contentFile)
         {
-            string urlConsul = $"{consulConfigurationFile.Address}{URL_KV_CONSUL}{consulConfigurationFile.RelativeRouteFileConsul}{fileName}";
-
-            Response<string> response = await CreateConsulClient(urlConsul).PutAsync<string>(
+            Response<string> response = await client.PutAsync<string>(
                     new RequestParameters
                     {
+                        Url = consulConfigurationFile.Address + URL_KV_CONSUL + consulConfigurationFile.RelativeRouteFileConsul + fileName,
                         HttpContent = contentFile.ToStringContent()
                     });
 
@@ -176,10 +178,11 @@ namespace Kit.DotNet.Core.Utils.Consul.Services
         /// </summary>
         /// <param name="urlConsul">the url of consul server</param>
         /// <returns>a object HttpClient</returns>
-        private HttpClient CreateConsulClient(string urlConsul)
+        public HttpClient CreateConsulClient(string urlConsul)
         {
-            HttpClient consulClient = _consulClientFactory.CreateClient();
+            HttpClient consulClient = _consulClientFactory.CreateClient("ApiConsul");
             consulClient.BaseAddress = new Uri(urlConsul);
+            
             return consulClient;
         }
 
