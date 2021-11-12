@@ -1,5 +1,5 @@
 ﻿using Kit.DotNet.Core.Utils.Consul.Models;
-using Kit.DotNet.Core.Utils.Consul.Services;
+using Kit.DotNet.Core.Utils.Consul.Services.ConsulKvService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

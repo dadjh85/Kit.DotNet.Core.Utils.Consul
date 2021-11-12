@@ -16,9 +16,13 @@ using System.Threading.Tasks;
 using Tests.Kit.DotNet.Core.Utils.Consul.GlobalConfiguration;
 using Xunit;
 using Kit.DotNet.Core.Utils.Extensions;
+using Kit.DotNet.Core.Utils.Consul.Services.ConsulKvService;
+using Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService;
+using Kit.DotNet.Core.Utils.Models;
 
 namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
 {
+    [Collection("Sequential")]
     public class ConsulKvServiceTest
     {
         #region Properties
@@ -29,22 +33,6 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
         private readonly string _appPath;
 
         #endregion
-
-        #region Constansts
-
-        private const string FILE_NAME_OPTION1 = "options1.json";
-        private const string FILE_NAME_OPTION1_DEVELOPMENT = "options1.Development.json";
-        private const string FILE_NAME_APPSETTINGS = "appsettings.json";
-        private const string FILE_NAME_APPSETTINGS_DEVELOPMENT = "appsettings.Development.json";
-        private const string FILE_NAME_OPTION2 = "options2.json";
-        private const string FILE_NAME_OPTION2_DEVELOPMENT = "options2.Development.json";
-        private const string PATH_FILE_OPTION1 = "optionsfiles/" + FILE_NAME_OPTION1;
-        private const string PATH_FILE_OPTION1_DEVELOPMENT = "optionsfiles/" + FILE_NAME_OPTION1_DEVELOPMENT;
-        private const string PATH_FILE_OPTION2 = "optionsfiles/" + FILE_NAME_OPTION2;
-        private const string PATH_FILE_OPTION2_DEVELOPMENT = "optionsfiles/" + FILE_NAME_OPTION2_DEVELOPMENT;
-
-        #endregion
-
 
         #region Constructor
 
@@ -64,54 +52,7 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             Assert.Throws<ArgumentNullException>(() => _consulKvService = new ConsulKvService(null));
         }
 
-        #region Method GetListKv
-
-        [Fact]
-        [ResetCreatedKvConsul]
-        public async Task GetListKv_when_reading_all_existing_key()
-        {
-            await UploadFilesToConsul(GetAllFilesName());
-
-            HttpClient client = _consulKvService.CreateConsulClient(_client.Config.Address.OriginalString);
-
-            List<string> kvConsul = await _consulKvService.GetListKv(client);
-
-            kvConsul.Where(c => c.Contains(_prefix)).ToList().Count.Should().Be(4);
-
-        }
-
-        [Fact]
-        public async Task GetListKv_when_non_existing_keys()
-        {
-            HttpClient client = _consulKvService.CreateConsulClient(_client.Config.Address.OriginalString);
-
-            List<string> kvConsul = await _consulKvService.GetListKv(client);
-
-            kvConsul.Where(c => c.Contains(_prefix)).ToList().Count.Should().Be(0);
-        }
-
-        [Fact]
-        public async Task GetListKv_with_consul_call_KO()
-        {
-            Mock<IHttpClientFactory> consulclientFactory = new Mock<IHttpClientFactory>();
-
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When($"{_client.Config.Address.OriginalString}/v1/kv/?keys").Respond(HttpStatusCode.NotFound);
-
-            consulclientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(new HttpClient(mockHttp));
-
-            _consulKvService = new ConsulKvService(consulclientFactory.Object);
-
-            HttpClient client = _consulKvService.CreateConsulClient(_client.Config.Address.OriginalString);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(async () => await _consulKvService.GetListKv(client));
-        }
-
-        #endregion
-
-        #region Method 
-
-        #region Private Methods AddFileKv
+        #region Method AddFileKv
 
         [Fact]
         [ResetCreatedKvConsul]
@@ -120,24 +61,24 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             var configurationFiles = new ConsulConfigurationFile
             {
                 Address = _client.Config.Address.OriginalString,
-                UrlFile = PATH_FILE_OPTION1,
+                UrlFile = TestsConstants.PATH_FILE_OPTION1,
                 RelativeRouteFileConsul = $"/{_prefix}"
             };
 
             bool result = await _consulKvService.AddFileKv(configurationFiles, "Development");
             result.Should().BeTrue();
 
-            QueryResult<string[]> consulKeyOptions1 = await _client.KV.Keys($"/{_prefix}/{PATH_FILE_OPTION1}");
+            QueryResult<string[]> consulKeyOptions1 = await _client.KV.Keys($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1}");
             consulKeyOptions1.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{PATH_FILE_OPTION1}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1}").Result.Response.Value.BytesToString()
                                                                                    .Should()
-                                                                                   .Be(File.ReadAllText($"{_appPath}/{PATH_FILE_OPTION1}"));
+                                                                                   .Be(File.ReadAllText($"{_appPath}/{TestsConstants.PATH_FILE_OPTION1}"));
 
-            QueryResult<string[]> consulKeyOptions1Development = await _client.KV.Keys($"/{_prefix}/{PATH_FILE_OPTION1_DEVELOPMENT}");
+            QueryResult<string[]> consulKeyOptions1Development = await _client.KV.Keys($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1_DEVELOPMENT}");
             consulKeyOptions1Development.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{PATH_FILE_OPTION1_DEVELOPMENT}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1_DEVELOPMENT}").Result.Response.Value.BytesToString()
                                                                                                .Should()
-                                                                                               .Be(File.ReadAllText($"{_appPath}/{PATH_FILE_OPTION1_DEVELOPMENT}"));
+                                                                                               .Be(File.ReadAllText($"{_appPath}/{TestsConstants.PATH_FILE_OPTION1_DEVELOPMENT}"));
         }
 
         [Fact]
@@ -147,7 +88,7 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             var configurationFiles = new ConsulConfigurationFile
             {
                 Address = _client.Config.Address.OriginalString,
-                UrlFile = PATH_FILE_OPTION1,
+                UrlFile = TestsConstants.PATH_FILE_OPTION1,
                 RelativeRouteFileConsul = $"/{_prefix}",
                 UploadEnvironmentFile = false
             };
@@ -155,11 +96,11 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             bool result = await _consulKvService.AddFileKv(configurationFiles, null);
             result.Should().BeTrue();
 
-            QueryResult<string[]> consulKeyOptions1 = await _client.KV.Keys($"/{_prefix}/{PATH_FILE_OPTION1}");
+            QueryResult<string[]> consulKeyOptions1 = await _client.KV.Keys($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1}");
             consulKeyOptions1.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{PATH_FILE_OPTION1}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1}").Result.Response.Value.BytesToString()
                                                                                    .Should()
-                                                                                   .Be(File.ReadAllText($"{_appPath}/{PATH_FILE_OPTION1}"));
+                                                                                   .Be(File.ReadAllText($"{_appPath}/{TestsConstants.PATH_FILE_OPTION1}"));
         }
 
         [Fact]
@@ -175,17 +116,17 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             bool result = await _consulKvService.AddFileKv(configurationFiles, "Development");
             result.Should().BeTrue();
 
-            QueryResult<string[]> consulKeyAppsettings = await _client.KV.Keys($"/{_prefix}/{FILE_NAME_APPSETTINGS}");
+            QueryResult<string[]> consulKeyAppsettings = await _client.KV.Keys($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS}");
             consulKeyAppsettings.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{FILE_NAME_APPSETTINGS}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS}").Result.Response.Value.BytesToString()
                                                                                        .Should()
-                                                                                       .Be(File.ReadAllText($"{_appPath}/{FILE_NAME_APPSETTINGS}"));
+                                                                                       .Be(File.ReadAllText($"{_appPath}/{TestsConstants.FILE_NAME_APPSETTINGS}"));
 
-            QueryResult<string[]> consulKeyAppsettingsDevelopment = await _client.KV.Keys($"/{_prefix}/{FILE_NAME_APPSETTINGS_DEVELOPMENT}");
+            QueryResult<string[]> consulKeyAppsettingsDevelopment = await _client.KV.Keys($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS_DEVELOPMENT}");
             consulKeyAppsettingsDevelopment.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{FILE_NAME_APPSETTINGS_DEVELOPMENT}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS_DEVELOPMENT}").Result.Response.Value.BytesToString()
                                                                                                    .Should()
-                                                                                                   .Be(File.ReadAllText($"{_appPath}/{FILE_NAME_APPSETTINGS_DEVELOPMENT}"));
+                                                                                                   .Be(File.ReadAllText($"{_appPath}/{TestsConstants.FILE_NAME_APPSETTINGS_DEVELOPMENT}"));
         }
 
         [Fact]
@@ -198,79 +139,89 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
                 RelativeRouteFileConsul = $"/{_prefix}",
                 UrlFiles = new List<string>()
                 {
-                    FILE_NAME_APPSETTINGS,
-                    PATH_FILE_OPTION1,
-                    PATH_FILE_OPTION2
+                    TestsConstants.FILE_NAME_APPSETTINGS,
+                    TestsConstants.PATH_FILE_OPTION1,
+                    TestsConstants.PATH_FILE_OPTION2
                 }
             };
 
             bool result = await _consulKvService.AddFileKv(configurationFiles, "Development");
             result.Should().BeTrue();
 
-            QueryResult<string[]> consulKeyAppsettings = await _client.KV.Keys($"/{_prefix}/{FILE_NAME_APPSETTINGS}");
+            QueryResult<string[]> consulKeyAppsettings = await _client.KV.Keys($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS}");
             consulKeyAppsettings.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{FILE_NAME_APPSETTINGS}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS}").Result.Response.Value.BytesToString()
                                                                                        .Should()
-                                                                                       .Be(File.ReadAllText($"{_appPath}/{FILE_NAME_APPSETTINGS}"));
+                                                                                       .Be(File.ReadAllText($"{_appPath}/{TestsConstants.FILE_NAME_APPSETTINGS}"));
 
-            QueryResult<string[]> consulKeyAppsettingsDevelopment = await _client.KV.Keys($"/{_prefix}/{FILE_NAME_APPSETTINGS_DEVELOPMENT}");
+            QueryResult<string[]> consulKeyAppsettingsDevelopment = await _client.KV.Keys($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS_DEVELOPMENT}");
             consulKeyAppsettingsDevelopment.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{FILE_NAME_APPSETTINGS_DEVELOPMENT}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.FILE_NAME_APPSETTINGS_DEVELOPMENT}").Result.Response.Value.BytesToString()
                                                                                                    .Should()
-                                                                                                   .Be(File.ReadAllText($"{_appPath}/{FILE_NAME_APPSETTINGS_DEVELOPMENT}"));
+                                                                                                   .Be(File.ReadAllText($"{_appPath}/{TestsConstants.FILE_NAME_APPSETTINGS_DEVELOPMENT}"));
 
-            QueryResult<string[]> consulKeyOptions1 = await _client.KV.Keys($"/{_prefix}/{PATH_FILE_OPTION1}");
+            QueryResult<string[]> consulKeyOptions1 = await _client.KV.Keys($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1}");
             consulKeyOptions1.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{PATH_FILE_OPTION1}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1}").Result.Response.Value.BytesToString()
                                                                                    .Should()
-                                                                                   .Be(File.ReadAllText($"{_appPath}/{PATH_FILE_OPTION1}"));
+                                                                                   .Be(File.ReadAllText($"{_appPath}/{TestsConstants.PATH_FILE_OPTION1}"));
 
-            QueryResult<string[]> consulKeyOptions1Development = await _client.KV.Keys($"/{_prefix}/{PATH_FILE_OPTION1_DEVELOPMENT}");
+            QueryResult<string[]> consulKeyOptions1Development = await _client.KV.Keys($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1_DEVELOPMENT}");
             consulKeyOptions1Development.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{PATH_FILE_OPTION1_DEVELOPMENT}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION1_DEVELOPMENT}").Result.Response.Value.BytesToString()
                                                                                                .Should()
-                                                                                               .Be(File.ReadAllText($"{_appPath}/{PATH_FILE_OPTION1_DEVELOPMENT}"));
+                                                                                               .Be(File.ReadAllText($"{_appPath}/{TestsConstants.PATH_FILE_OPTION1_DEVELOPMENT}"));
 
-            QueryResult<string[]> consulKeyOptions2 = await _client.KV.Keys($"/{_prefix}/{PATH_FILE_OPTION2}");
+            QueryResult<string[]> consulKeyOptions2 = await _client.KV.Keys($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION2}");
             consulKeyOptions2.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{PATH_FILE_OPTION2}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION2}").Result.Response.Value.BytesToString()
                                                                                    .Should()
-                                                                                   .Be(File.ReadAllText($"{_appPath}/{PATH_FILE_OPTION2}"));
+                                                                                   .Be(File.ReadAllText($"{_appPath}/{TestsConstants.PATH_FILE_OPTION2}"));
 
-            QueryResult<string[]> consulKeyOptions2Development = await _client.KV.Keys($"/{_prefix}/{PATH_FILE_OPTION2_DEVELOPMENT}");
+            QueryResult<string[]> consulKeyOptions2Development = await _client.KV.Keys($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION2_DEVELOPMENT}");
             consulKeyOptions2Development.StatusCode.Should().Be(HttpStatusCode.OK);
-            _client.KV.Get($"/{_prefix}/{PATH_FILE_OPTION2_DEVELOPMENT}").Result.Response.Value.BytesToString()
+            _client.KV.Get($"/{_prefix}/{TestsConstants.PATH_FILE_OPTION2_DEVELOPMENT}").Result.Response.Value.BytesToString()
                                                                                                .Should()
-                                                                                               .Be(File.ReadAllText($"{_appPath}/{PATH_FILE_OPTION2_DEVELOPMENT}"));
+                                                                                               .Be(File.ReadAllText($"{_appPath}/{TestsConstants.PATH_FILE_OPTION2_DEVELOPMENT}"));
 
 
+        }
+
+        [Fact]
+        public async Task AddFileKv_when_put_file_consul_return_badrequest()
+        {
+            Mock<IConsulClientService> mockconsulClientService = new Mock<IConsulClientService>();
+
+            mockconsulClientService.Setup(x => x.UploadFile(It.IsAny<HttpClient>(), It.IsAny<ConsulConfigurationFile>(), It.IsAny<string>(), It.IsAny<string>()))
+                                   .Returns(async () => new Response<string> { HttpResponseMessage = new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest } });
+
+            mockconsulClientService.As<IConsulClientService>().Setup(x => x.CreateConsulClient(It.IsAny<string>())).Returns(new HttpClient());
+            mockconsulClientService.As<IConsulClientService>().Setup(x => x.GetListKv(It.IsAny<HttpClient>())).Returns(async () => new Response<List<string>> 
+                                                                                                                                  { 
+                                                                                                                                     Entity = new List<string> { "appsettings.json" } 
+                                                                                                                                  });
+
+            _consulKvService = new ConsulKvService(mockconsulClientService.Object);
+
+            bool result = await _consulKvService.AddFileKv(new ConsulConfigurationFile() { Address = _client.Config.Address.OriginalString }, "Development");
+            result.Should().BeFalse();
         }
 
         #endregion
 
-        private KVPair Pair(string key, string value) => new KVPair(_prefix + key) { Value = Encoding.UTF8.GetBytes(value) };
+        #region Private Methods 
 
-        private List<string> GetAllFilesName()
-            => new List<string> { FILE_NAME_OPTION1, FILE_NAME_OPTION1_DEVELOPMENT, FILE_NAME_OPTION2, FILE_NAME_OPTION2_DEVELOPMENT };
-
-        private async Task UploadFilesToConsul(List<string> files)
-        {
-
-            foreach (var item in files)
-            {
-                string contentFile = File.ReadAllText($"{_appPath}/optionsfiles/{item}");
-                await _client.KV.Put(Pair(item, contentFile));
-            }
-        }
-        
-        private IConsulKvService CreateIConsulKvService()
+        private IConsulClientService CreateIConsulClientService()
         {
             Mock<IHttpClientFactory> consulclientFactory = new Mock<IHttpClientFactory>();
 
             consulclientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
 
-            return new ConsulKvService(consulclientFactory.Object);
+            return new ConsulClientService(consulclientFactory.Object);
         }
+
+        private IConsulKvService CreateIConsulKvService()
+            => new ConsulKvService(CreateIConsulClientService());
 
         #endregion
     }

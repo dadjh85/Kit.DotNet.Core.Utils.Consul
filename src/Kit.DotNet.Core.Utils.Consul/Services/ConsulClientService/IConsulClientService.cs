@@ -4,27 +4,26 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Kit.DotNet.Core.Utils.Consul.Services
+namespace Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService
 {
-    /// <summary>
-    /// Interface of the service ConsulKvService
-    /// </summary>
-    public interface IConsulKvService
+    public interface IConsulClientService
     {
         /// <summary>
-        /// method for uploading a file or a list of files to the consul server.
+        /// method that makes a put call to the consul api, which allows a file to be uploaded to the server
         /// </summary>
+        /// <param name="client">the client for call API-REST</param>
         /// <param name="consulConfigurationFile">object with the configuration options for file uploading</param>
-        /// <param name="environment">the .NET Core application environment</param>
-        /// <returns>a boolean with the result of execution</returns>
-        Task<bool> AddFileKv(ConsulConfigurationFile consulConfigurationFile, string environment);
+        /// <param name="fileName">the name of file</param>
+        /// <param name="contentFile">the content of file</param>
+        /// <returns>the response http and a string with the result of execution</returns>
+        Task<Response<string>> UploadFile(HttpClient client, ConsulConfigurationFile consulConfigurationFile, string fileName, string contentFile);
 
         /// <summary>
         /// gets the list of file names uploaded to the consul server.
         /// </summary>
-        /// <param name="client">the client for call API-REST</param>
+        /// <param name="client">the client for call to consul</param>
         /// <returns>a list of strings with the name of all files in consul</returns>
-        Task<List<string>> GetListKv(HttpClient client);
+        Task<Response<List<string>>> GetListKv(HttpClient client);
 
         /// <summary>
         /// method for create a object HttpClient for call to consul server
