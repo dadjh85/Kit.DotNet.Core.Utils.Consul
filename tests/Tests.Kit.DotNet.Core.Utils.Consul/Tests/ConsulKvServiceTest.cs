@@ -193,13 +193,22 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             Mock<IConsulClientService> mockconsulClientService = new Mock<IConsulClientService>();
 
             mockconsulClientService.Setup(x => x.UploadFile(It.IsAny<HttpClient>(), It.IsAny<ConsulConfigurationFile>(), It.IsAny<string>(), It.IsAny<string>()))
-                                   .Returns(async () => new Response<string> { HttpResponseMessage = new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest } });
+                                   .Returns(async () =>
+                                   {
+                                       await Task.Delay(200);
+                                       return new Response<string> { HttpResponseMessage = new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest }};
+                                   });
 
             mockconsulClientService.As<IConsulClientService>().Setup(x => x.CreateConsulClient(It.IsAny<string>())).Returns(new HttpClient());
-            mockconsulClientService.As<IConsulClientService>().Setup(x => x.GetListKv(It.IsAny<HttpClient>())).Returns(async () => new Response<List<string>> 
-                                                                                                                                  { 
-                                                                                                                                     Entity = new List<string> { "appsettings.json" } 
-                                                                                                                                  });
+            mockconsulClientService.As<IConsulClientService>().Setup(x => x.GetListKv(It.IsAny<HttpClient>()))
+                                                              .Returns(async () =>
+                                                              {
+                                                                  await Task.Delay(200);
+                                                                  return new Response<List<string>>
+                                                                  {
+                                                                      Entity = new List<string> { "appsettings.json" }
+                                                                  };
+                                                              });
 
             _consulKvService = new ConsulKvService(mockconsulClientService.Object);
 

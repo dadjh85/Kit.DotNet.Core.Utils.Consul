@@ -38,6 +38,8 @@ namespace Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService
 
         public async Task<Response<string>> UploadFile(HttpClient client, ConsulConfigurationFile consulConfigurationFile, string fileName, string contentFile)
         {
+            ValidateUploadFileRequest(client, consulConfigurationFile, fileName, contentFile);
+
             Response<string> response = await client.PutAsync<string>(
                     new RequestParameters
                     {
@@ -52,6 +54,8 @@ namespace Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService
 
         public async Task<Response<List<string>>> GetListKv(HttpClient client)
         {
+            ValidateRequest(client);
+
             Response<List<string>> result = await client.GetAsync<List<string>>(new RequestParameters { Url = $"{URL_KV_CONSUL}?keys" });
 
             ValidateResponse(result);
@@ -61,10 +65,12 @@ namespace Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService
 
         public HttpClient CreateConsulClient(string urlConsul)
         {
+            if (string.IsNullOrEmpty(urlConsul))
+                throw new ArgumentNullException(nameof(urlConsul), "can't be null");
+
             HttpClient consulClient = _consulClientFactory.CreateClient("ApiConsul");
 
-            if (urlConsul != null)
-                consulClient.BaseAddress = new Uri(urlConsul);
+            consulClient.BaseAddress = new Uri(urlConsul);
 
             return consulClient;
         }
@@ -80,6 +86,34 @@ namespace Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService
         {
             if (response.HttpResponseMessage.StatusCode != HttpStatusCode.OK)
                 throw new InvalidOperationException("no connection could be established with consul");
+        }
+
+        /// <summary>
+        /// validate the request of the consulserver
+        /// </summary>
+        /// <param name="client">the client for conet with consul</param>
+        private void ValidateRequest(HttpClient client)
+        {
+            if(client == null)
+                throw new ArgumentNullException(nameof(client), "can't be null");
+        }
+
+        /// <summary>
+        /// Validate the the request for upload the file in consul server
+        /// </summary>
+        /// <param name="client">the client for conet with consul</param>
+        /// <param name="consulConfigurationFile">a object ConsulConfigurationFile with the confituration to upload files</param>
+        /// <param name="fileName">the name of file</param>
+        /// <param name="contentFile">the content of file</param>
+        private void ValidateUploadFileRequest(HttpClient client, ConsulConfigurationFile consulConfigurationFile, string fileName, string contentFile)
+        {
+            ValidateRequest(client);
+            if (consulConfigurationFile == null)
+                throw new ArgumentNullException(nameof(consulConfigurationFile), "can't be null");
+            if (string.IsNullOrEmpty(fileName))
+                throw new ArgumentNullException(nameof(fileName), "can't be null");
+            if(string.IsNullOrEmpty(contentFile)) 
+                throw new ArgumentNullException(nameof(contentFile), "can't be null");
         }
 
         #endregion

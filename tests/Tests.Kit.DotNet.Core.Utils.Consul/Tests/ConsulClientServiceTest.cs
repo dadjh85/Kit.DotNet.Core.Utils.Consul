@@ -52,6 +52,14 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
         #region Method GetListKv
 
         [Fact]
+        public async Task GetListKv_when_client_is_null()
+        {
+            await UploadFilesToConsul(GetAllFilesName());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await _consulClientService.GetListKv(null));
+        }
+
+        [Fact]
         [ResetCreatedKvConsul]
         public async Task GetListKv_when_reading_all_existing_key()
         {
@@ -103,6 +111,97 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
 
         #endregion
 
+        #region Method UploadFile
+
+        [Fact]
+        [ResetCreatedKvConsul]
+        public async Task UploadFile_when_file_is_upload_consul()
+        {
+
+            HttpClient client = _consulClientService.CreateConsulClient(_client.Config.Address.OriginalString);
+
+            ConsulConfigurationFile consulConfigurationFile = new ConsulConfigurationFile
+            {
+                Address = _client.Config.Address.OriginalString,
+                RelativeRouteFileConsul = $"/{_prefix}"
+            };
+
+            Response<string> result = await _consulClientService.UploadFile(client, 
+                                                                            consulConfigurationFile, 
+                                                                            "test.json", 
+                                                                            File.ReadAllText($"{_appPath}/optionsfiles/{GetAllFilesName().First()}"));
+
+            result.HttpResponseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
+            result.Entity.Should().Be("true");
+        }
+
+        [Theory]
+        [InlineData(null, "test")]
+        [InlineData("test.json", null)]
+        [InlineData(null, null)]
+        public async Task UploadFile_when_fileName_or_contentFile_is_null(string fileName, string contentFile)
+        {
+            HttpClient client = _consulClientService.CreateConsulClient(_client.Config.Address.OriginalString);
+
+            ConsulConfigurationFile consulConfigurationFile = new ConsulConfigurationFile
+            {
+                Address = _client.Config.Address.OriginalString,
+                RelativeRouteFileConsul = $"/{_prefix}"
+            };
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await _consulClientService.UploadFile(client, consulConfigurationFile, fileName, contentFile));
+        }
+
+        [Fact]
+        public async Task UploadFile_when_client_is_null()
+        {
+            ConsulConfigurationFile consulConfigurationFile = new ConsulConfigurationFile
+            {
+                Address = _client.Config.Address.OriginalString,
+                RelativeRouteFileConsul = $"/{_prefix}"
+            };
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await _consulClientService.UploadFile(null, 
+                                                                                                              consulConfigurationFile, 
+                                                                                                              "test.json",
+                                                                                                              File.ReadAllText($"{_appPath}/optionsfiles/{GetAllFilesName().First()}")));
+        }
+
+        [Fact]
+        public async Task UploadFile_when_consulConfigurationFile_is_null()
+        {
+            HttpClient client = _consulClientService.CreateConsulClient(_client.Config.Address.OriginalString);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await _consulClientService.UploadFile(client,
+                                                                                                              null,
+                                                                                                              "test.json",
+                                                                                                              File.ReadAllText($"{_appPath}/optionsfiles/{GetAllFilesName().First()}")));
+        }
+
+
+        #endregion
+
+        #region Method CreateConsulClient
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void CreateConsulClient_when_urlConsul_is_null_or_empty(string url)
+        {
+            Assert.Throws<ArgumentNullException>(() => _consulClientService.CreateConsulClient(url));
+        }
+
+        [Fact]
+        public void CreateConsulClient_when_url_is_ok()
+        {
+            HttpClient client = _consulClientService.CreateConsulClient("http://localhost");
+            client.Should().NotBeNull();
+            client.BaseAddress.Should().Be("http://localhost");
+        }
+
+
+        #endregion
+
         #region Private Methods
 
         private KVPair Pair(string key, string value) 
@@ -119,7 +218,6 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
 
         private async Task UploadFilesToConsul(List<string> files)
         {
-
             foreach (var item in files)
             {
                 string contentFile = File.ReadAllText($"{_appPath}/optionsfiles/{item}");
