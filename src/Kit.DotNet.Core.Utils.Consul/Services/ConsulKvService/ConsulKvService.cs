@@ -34,11 +34,9 @@ namespace Kit.DotNet.Core.Utils.Consul.Services.ConsulKvService
 
         #endregion
 
-
         public async Task<bool> AddFileKv(ConsulConfigurationFile consulConfigurationFile, string environment)
         {
-            if(consulConfigurationFile == null)
-                throw new InvalidOperationException("the ConsulConfigurationFile object cannot be null");
+            ValidateAddFileKv(consulConfigurationFile);
 
             string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -68,8 +66,18 @@ namespace Kit.DotNet.Core.Utils.Consul.Services.ConsulKvService
             return isUploadAllFiles;
         }
 
-      
+
         #region Private methods
+
+        /// <summary>
+        /// validates the parameters of the AddFileKv method 
+        /// </summary>
+        /// <param name="consulConfigurationFile">object with the configuration options for file uploading</param>
+        private void ValidateAddFileKv(ConsulConfigurationFile consulConfigurationFile)
+        {
+            if (consulConfigurationFile == null)
+                throw new ArgumentNullException(nameof(consulConfigurationFile), "can't be null");
+        }
 
         /// <summary>
         /// processes the name of the configuration files obtaining the configuration file per environment

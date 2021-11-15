@@ -216,6 +216,21 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             result.Should().BeFalse();
         }
 
+        [Fact]
+        public async Task AddFileKv_when_consulConfigurationFile_is_null()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(async() => await _consulKvService.AddFileKv(null, "Development"));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task AddFileKv_when_environment_is_null_or(string environment)
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await _consulKvService.AddFileKv(new ConsulConfigurationFile(), environment));
+        }
+
         #endregion
 
         #region Private Methods 
