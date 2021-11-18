@@ -14,7 +14,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Tests.Kit.DotNet.Core.Utils.Consul.GlobalConfiguration;
+using Tests.Kit.DotNet.Core.Utils.Consul.GlobalConfiguration.Tests;
+using Tests.Tests.Infrastructure.GlobalConfiguration;
 using Xunit;
 
 namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
@@ -129,7 +130,7 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             Response<string> result = await _consulClientService.UploadFile(client, 
                                                                             consulConfigurationFile, 
                                                                             "test.json", 
-                                                                            File.ReadAllText($"{_appPath}/optionsfiles/{GetAllFilesName().First()}"));
+                                                                            File.ReadAllText($"{_appPath}/Optionsfiles/{GetAllFilesName().First()}"));
 
             result.HttpResponseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
             result.Entity.Should().Be("true");
@@ -164,7 +165,7 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await _consulClientService.UploadFile(null, 
                                                                                                               consulConfigurationFile, 
                                                                                                               "test.json",
-                                                                                                              File.ReadAllText($"{_appPath}/optionsfiles/{GetAllFilesName().First()}")));
+                                                                                                              File.ReadAllText($"{_appPath}/Optionsfiles/{GetAllFilesName().First()}")));
         }
 
         [Fact]
@@ -175,7 +176,7 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await _consulClientService.UploadFile(client,
                                                                                                               null,
                                                                                                               "test.json",
-                                                                                                              File.ReadAllText($"{_appPath}/optionsfiles/{GetAllFilesName().First()}")));
+                                                                                                              File.ReadAllText($"{_appPath}/Optionsfiles/{GetAllFilesName().First()}")));
         }
 
 
@@ -220,7 +221,7 @@ namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
         {
             foreach (var item in files)
             {
-                string contentFile = File.ReadAllText($"{_appPath}/optionsfiles/{item}");
+                string contentFile = File.ReadAllText($"{_appPath}/Optionsfiles/{item}");
                 await _client.KV.Put(Pair(item, contentFile));
             }
         }

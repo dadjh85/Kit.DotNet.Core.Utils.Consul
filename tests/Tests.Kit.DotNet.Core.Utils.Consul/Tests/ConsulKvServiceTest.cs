@@ -19,6 +19,8 @@ using Kit.DotNet.Core.Utils.Extensions;
 using Kit.DotNet.Core.Utils.Consul.Services.ConsulKvService;
 using Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService;
 using Kit.DotNet.Core.Utils.Models;
+using Tests.Tests.Infrastructure.GlobalConfiguration;
+using Tests.Kit.DotNet.Core.Utils.Consul.GlobalConfiguration.Tests;
 
 namespace Tests.Kit.DotNet.Core.Utils.Consul.Tests
 {

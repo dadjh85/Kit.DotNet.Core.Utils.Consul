@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using Xunit.Sdk;
 
-namespace Tests.Kit.DotNet.Core.Utils.Consul.GlobalConfiguration
+namespace Tests.Tests.Infrastructure.GlobalConfiguration
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class ResetCreatedKvConsulAttribute : BeforeAfterTestAttribute
