@@ -1,4 +1,5 @@
 ﻿using Kit.DotNet.Core.Utils.Consul.Models;
+using Kit.DotNet.Core.Utils.Consul.Services.ConsulClientService;
 using Kit.DotNet.Core.Utils.Consul.Services.ConsulKvService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,9 +28,9 @@ namespace Kit.DotNet.Core.Utils.Consul
         {
             services.AddSingleton(LoadConsulKvOptions(configuration, urlFile, relativeRouteFileConsul));
 
+            services.AddScoped<IConsulClientService, ConsulClientService>();
+            services.AddScoped<IConsulKvService, ConsulKvService>();
             services.AddHostedService<ConsulKvUploadFilesHostedService>();
-            services.AddTransient<IConsulKvService, ConsulKvService>();
-
             return services;
         }
 
