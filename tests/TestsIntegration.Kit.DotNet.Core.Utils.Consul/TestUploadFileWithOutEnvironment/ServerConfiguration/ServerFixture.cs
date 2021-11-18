@@ -6,7 +6,7 @@ using System.IO;
 using System.Reflection;
 using Xunit;
 
-namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile.ServerConfiguration
+namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFileWithOutEnvironment.ServerConfiguration
 {
     public class ServerFixture
     {
@@ -19,8 +19,8 @@ namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile.ServerCon
         #region constants
 
         public const string ENVIRONMENT = "Development";
-        public const string RELATIVE_PATH_OPTIONS_FILES = "TestUploadFile\\Optionsfiles";
-        public const string SERVER_NAME = "UploloadFileServerFixture";
+        public const string RELATIVE_PATH_OPTIONS_FILES = "TestUploadFileWithOutEnvironment\\Optionsfiles";
+        public const string SERVER_NAME = "UploloadFileWithOutEnvironmentServerFixture";
         public const string NAME_CONFIGURATION_FILE = "appsettings";
 
         #endregion
@@ -38,17 +38,15 @@ namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile.ServerCon
         {
             return new WebHostBuilder().ConfigureAppConfiguration((builder, config) =>
             {
-                Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", ENVIRONMENT);
+                Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
 
                 string publishPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + $"\\{RELATIVE_PATH_OPTIONS_FILES}";
 
                 config.SetBasePath(publishPath)
-                      .AddJsonFile($"{NAME_CONFIGURATION_FILE}.json")
-                      .AddJsonFile($"{NAME_CONFIGURATION_FILE}.{builder.HostingEnvironment?.EnvironmentName}.json");
+                      .AddJsonFile($"{NAME_CONFIGURATION_FILE}.json");
 
                 config.Build();
             })
-            .UseEnvironment(ENVIRONMENT)
             .UseStartup<TestStartup>();
         }
     }

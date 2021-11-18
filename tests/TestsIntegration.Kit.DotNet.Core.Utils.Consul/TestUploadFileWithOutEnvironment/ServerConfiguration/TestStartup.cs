@@ -5,7 +5,7 @@ using Kit.DotNet.Core.Utils.Consul;
 using Microsoft.AspNetCore.Builder;
 using Tests.Tests.Infrastructure.GlobalConfiguration;
 
-namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile.ServerConfiguration
+namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFileWithOutEnvironment.ServerConfiguration
 {
     public class TestStartup
     {

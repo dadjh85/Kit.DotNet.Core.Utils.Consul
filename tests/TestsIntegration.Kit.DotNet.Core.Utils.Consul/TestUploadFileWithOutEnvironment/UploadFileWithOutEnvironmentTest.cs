@@ -5,12 +5,12 @@ using Kit.DotNet.Core.Utils.Extensions;
 using FluentAssertions;
 using System.Reflection;
 using System.IO;
-using TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile.ServerConfiguration;
+using TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFileWithOutEnvironment.ServerConfiguration;
 
-namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile
+namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFileWithOutEnvironment
 {
     [Collection(ServerFixture.SERVER_NAME)]
-    public class UploadFileTest
+    public class UploadFileWithOutEnvironmentTest
     {
         #region Properties
 
@@ -22,7 +22,7 @@ namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile
 
         #region Constructors
 
-        public UploadFileTest()
+        public UploadFileWithOutEnvironmentTest()
         {
             _client = new ConsulClient();
             _prefix = ResetCreatedKvConsulAttribute.PREFIX_CONSUL_TEST;
@@ -33,17 +33,12 @@ namespace TestsIntegration.Kit.DotNet.Core.Utils.Consul.TestUploadFile
 
         [Fact]
         [ResetCreatedKvConsul]
-        public void UploadFile_and_environmentFile_when_is_ok()
+        public void UploadFile_when_is_ok()
         {
             string contentFile = File.ReadAllText($"{_appPath}/{ServerFixture.RELATIVE_PATH_OPTIONS_FILES}/{ServerFixture.NAME_CONFIGURATION_FILE}.json");
             _client.KV.Get($"/{_prefix}/{ServerFixture.RELATIVE_PATH_OPTIONS_FILES}/{ServerFixture.NAME_CONFIGURATION_FILE}.json").Result.Response.Value.BytesToString()
                                                                                                                                   .Should()
                                                                                                                                   .Be(contentFile);
-
-            string contentfileEnvironment = File.ReadAllText($"{_appPath}/{ServerFixture.RELATIVE_PATH_OPTIONS_FILES}/{ServerFixture.NAME_CONFIGURATION_FILE}.{ServerFixture.ENVIRONMENT}.json");
-            _client.KV.Get($"/{_prefix}/{ServerFixture.RELATIVE_PATH_OPTIONS_FILES}/{ServerFixture.NAME_CONFIGURATION_FILE}.{ServerFixture.ENVIRONMENT}.json").Result.Response.Value.BytesToString()
-                                                                                                                                                              .Should()
-                                                                                                                                                              .Be(contentfileEnvironment);
         }
     }
 }
