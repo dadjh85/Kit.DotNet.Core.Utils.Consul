@@ -10,6 +10,14 @@
     <None Remove="appsettings.Development.json" />
     <None Remove="appsettings.json" />
     <None Remove="TestUploadFileWithOutEnvironment\Optionsfiles\appsettings.json" />
+    <None Remove="TestUploadMultiFileWithEnvironment\Optionsfiles\appsettings.json" />
+    <None Remove="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests.json" />
+    <None Remove="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests2.json" />
+    <None Remove="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests3.json" />
+    <None Remove="TestUploadMultiFile\Optionsfiles\appsettings.json" />
+    <None Remove="TestUploadMultiFile\Optionsfiles\optionsTests.json" />
+    <None Remove="TestUploadMultiFile\Optionsfiles\optionsTests2.json" />
+    <None Remove="TestUploadMultiFile\Optionsfiles\optionsTests3.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +32,46 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Include="TestUploadFile\Optionsfiles\appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFileWithEnvironment\Optionsfiles\appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFile\Optionsfiles\appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFile\Optionsfiles\optionsTests3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFile\Optionsfiles\optionsTests2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestUploadMultiFile\Optionsfiles\optionsTests.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -50,6 +98,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tests.Infrastructure\Tests.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestUploadMultiFileWithEnvironment\Optionsfiles\appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests2.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestUploadMultiFileWithEnvironment\Optionsfiles\optionsTests3.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
